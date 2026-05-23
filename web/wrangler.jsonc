@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "shipyard-web",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shipyard-db",
+      "database_id": "e71b0ca4-bdd9-4b9b-bade-1388d4bb825a"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}

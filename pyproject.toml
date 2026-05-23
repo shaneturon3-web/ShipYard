@@ -1,0 +1,13 @@
+[project]
+name = "shipyard"
+version = "0.1.0"
+description = "CONTROL TOWER Project Orchestrator (ShipYard)"
+requires-python = ">=3.11"
+dependencies = ["typer[all]", "rich", "pyyaml"]
+
+[project.scripts]
+shipyard = "shipyard.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shipyard*"]

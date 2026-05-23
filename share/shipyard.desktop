@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ShipYard
+Comment=CONTROL TOWER Project Orchestrator
+Exec=@SHIPYARD_HOME@/bin/shipyard-launch.sh
+Path=@SHIPYARD_HOME@
+Icon=utilities-terminal
+Terminal=true
+Categories=Development;

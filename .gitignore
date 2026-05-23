@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.dist-info/
+allamakey.txt
+.env
+*.pem
+~/
+web/node_modules/
+web/.wrangler/
+web/dist/
+content.jpeg
+~/
