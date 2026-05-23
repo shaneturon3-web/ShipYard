@@ -14,7 +14,7 @@
         <h1 class="text-2xl font-semibold tracking-tight">ShipYard Web</h1>
         <p class="text-slate-400 text-sm">Active orchestration node · D1 state machine · Tailscale bridge (docs)</p>
       </div>
-      <span class="text-xs px-2 py-1 rounded bg-amber-900/50 text-amber-200 border border-amber-700">Architectural</span>
+      <span class="text-xs px-2 py-1 rounded bg-emerald-900/50 text-emerald-200 border border-emerald-700">Engineering</span>
     </div>
   </header>
 
@@ -49,6 +49,8 @@
         <button type="button" id="btn-sugar" class="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-sm">Export Sugar Cube</button>
       </div>
       <pre id="orch-result" class="text-xs text-slate-300 whitespace-pre-wrap max-h-64 overflow-auto"></pre>
+      <p class="text-slate-500 text-xs mt-2">Orchestration API requires Cloudflare Access in browser. Deploy stream (SSE) after queue:</p>
+      <pre id="deploy-stream" class="text-xs text-amber-200/80 whitespace-pre-wrap max-h-32 overflow-auto mt-1"></pre>
       <ul id="tree-preview" class="mt-3 text-sm font-mono text-slate-400 space-y-1"></ul>
     </section>
 

@@ -68,7 +68,7 @@ def sync(slug: str):
     if SYNC_SCRIPT.is_file():
         console.print("[dim]Running sync_control_tower.sh --dry-run ...[/dim]")
         result = subprocess.run(
-            [str(SYNC_SCRIPT), "--dry-run"],
+            ["bash", str(SYNC_SCRIPT), "--dry-run"],
             capture_output=True,
             text=True,
         )

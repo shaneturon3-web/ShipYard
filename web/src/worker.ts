@@ -1,3 +1,4 @@
+import { authorizeOrchestration, isProtectedOrchestrationPath } from "./access";
 import { handleOrchestrationApi } from "./orchestration";
 import type { Env, NewProjectBody, NewProjectResponse, ProjectRow } from "./types";
 
@@ -113,6 +114,11 @@ async function auditProject(env: Env, slug: string): Promise<Response> {
 async function handleApi(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const path = url.pathname;
+
+  if (isProtectedOrchestrationPath(path)) {
+    const denied = authorizeOrchestration(request, env);
+    if (denied) return denied;
+  }
 
   if (path === "/api/projects" && request.method === "GET") {
     const projects = await listProjects(env.DB);

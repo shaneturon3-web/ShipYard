@@ -88,6 +88,29 @@ export async function createDeployment(
   };
 }
 
+export async function updateDeploymentEvent(
+  db: D1Database,
+  slug: string,
+  eventId: number,
+  status: string,
+  logTail?: string,
+): Promise<boolean> {
+  const allowed = ["provisioning", "building", "live", "failed"];
+  if (!allowed.includes(status)) {
+    return false;
+  }
+  const ts = nowIso();
+  const result = await db
+    .prepare(
+      `UPDATE deployment_events
+       SET status = ?, log_tail = COALESCE(?, log_tail), updated_at = ?
+       WHERE id = ? AND project_slug = ?`,
+    )
+    .bind(status, logTail ?? null, ts, eventId, slug)
+    .run();
+  return (result.meta.changes ?? 0) > 0;
+}
+
 export async function listDeployments(db: D1Database, slug: string) {
   const { results } = await db
     .prepare(
@@ -188,6 +211,55 @@ export async function handleOrchestrationApi(
     const slug = sugar[1];
     const bundle = await exportSugarCube(env.DB, slug);
     return Response.json(bundle, { headers: JSON_HEADERS });
+  }
+
+  const deployPatch = path.match(/^\/api\/deploy\/([A-Z0-9_]+)\/events\/(\d+)$/);
+  if (deployPatch && request.method === "PATCH") {
+    const slug = deployPatch[1];
+    const eventId = Number(deployPatch[2]);
+    const body = (await request.json()) as { status?: string; log_tail?: string };
+    if (!body.status) {
+      return Response.json({ error: "status required" }, { status: 400, headers: JSON_HEADERS });
+    }
+    const ok = await updateDeploymentEvent(env.DB, slug, eventId, body.status, body.log_tail);
+    if (!ok) {
+      return Response.json({ error: "Not found or invalid status" }, { status: 404, headers: JSON_HEADERS });
+    }
+    return Response.json({ slug, id: eventId, status: body.status }, { headers: JSON_HEADERS });
+  }
+
+  const deployStream = path.match(/^\/api\/deploy\/([A-Z0-9_]+)\/stream$/);
+  if (deployStream && request.method === "GET") {
+    const slug = deployStream[1];
+    const encoder = new TextEncoder();
+    let lastId = 0;
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (payload: unknown) => {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+        };
+        send({ type: "connected", slug });
+        for (let i = 0; i < 30; i++) {
+          const events = await listDeployments(env.DB, slug);
+          const latest = events[0] as { id?: number; status?: string; log_tail?: string } | undefined;
+          if (latest?.id && latest.id !== lastId) {
+            lastId = latest.id;
+            send({ type: "event", event: latest });
+          } else if (latest) {
+            send({ type: "heartbeat", status: latest.status, id: latest.id });
+          }
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        "content-type": "text/event-stream",
+        "cache-control": "no-cache",
+        connection: "keep-alive",
+      },
+    });
   }
 
   return null;

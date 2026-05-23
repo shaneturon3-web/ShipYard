@@ -3,6 +3,10 @@ export interface Env {
   PLANNING?: R2Bucket;
   ASSETS: Fetcher;
   ENVIRONMENT: string;
+  /** Set to "false" only for local wrangler dev. */
+  ACCESS_ENFORCE?: string;
+  /** Bridge + automation bearer token (wrangler secret). */
+  SHIPYARD_BRIDGE_SECRET?: string;
 }
 
 export interface ProjectRow {

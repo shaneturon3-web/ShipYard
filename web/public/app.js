@@ -70,7 +70,7 @@ function orchOut(text) {
 document.getElementById("btn-parse-tree")?.addEventListener("click", async () => {
   const slug = /** @type {HTMLInputElement} */ (document.getElementById("orch-slug")).value.trim();
   const text = /** @type {HTMLTextAreaElement} */ (document.getElementById("tree-input")).value;
-  const nodes = parseTreeManifest(text);
+  const nodes = await parseTreeManifest(text);
   const preview = document.getElementById("tree-preview");
   if (preview) {
     preview.innerHTML = nodes
@@ -86,11 +86,27 @@ document.getElementById("btn-parse-tree")?.addEventListener("click", async () =>
   orchOut(JSON.stringify(data, null, 2));
 });
 
+function startDeployStream(slug) {
+  const el = document.getElementById("deploy-stream");
+  if (!el) return;
+  el.textContent = "Connecting SSE…\n";
+  const es = new EventSource(`/api/deploy/${slug}/stream`);
+  es.onmessage = (ev) => {
+    el.textContent += `${ev.data}\n`;
+    el.scrollTop = el.scrollHeight;
+  };
+  es.onerror = () => {
+    el.textContent += "[stream ended]\n";
+    es.close();
+  };
+}
+
 document.getElementById("btn-deploy")?.addEventListener("click", async () => {
   const slug = /** @type {HTMLInputElement} */ (document.getElementById("orch-slug")).value.trim();
   const res = await fetch(`/api/deploy/${slug}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       target: "local-optiplex",
       transport: "tailscale-bridge",
@@ -98,7 +114,9 @@ document.getElementById("btn-deploy")?.addEventListener("click", async () => {
       note: "Semantic router only — bridge agent executes",
     }),
   });
-  orchOut(JSON.stringify(await res.json(), null, 2));
+  const data = await res.json();
+  orchOut(JSON.stringify(data, null, 2));
+  if (res.ok) startDeployStream(slug);
 });
 
 document.getElementById("btn-sugar")?.addEventListener("click", async () => {
