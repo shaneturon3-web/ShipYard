@@ -3,7 +3,7 @@ from pathlib import Path
 
 from shipyard.machine_env import machine_env_present
 from shipyard.paths import handoff_root_for_slug, normalize_slug, planning_dir_for_slug
-from shipyard.project_index import slug_in_index
+from shipyard.project_index import is_slug_hidden, slug_in_index
 
 REQUIRED_PLANNING = ("INTAKE.md", "STATE.md", "DOMAIN.md", "FILE_INVENTORY.md")
 META_SLUGS = frozenset({"CONTROL_TOWER", "SUGARCUBE_DOCTRINE"})
@@ -30,7 +30,14 @@ def scan_continuity(slug: str) -> list[ContinuityGap]:
     normalized = normalize_slug(slug)
     gaps: list[ContinuityGap] = []
 
-    if not slug_in_index(normalized):
+    if is_slug_hidden(normalized):
+        gaps.append(
+            ContinuityGap(
+                "index",
+                f"Slug `{normalized}` is hidden (see 06_PROJECT_INDEX/HIDDEN_SLUGS.md)",
+            )
+        )
+    elif not slug_in_index(normalized):
         gaps.append(ContinuityGap("index", f"Slug `{normalized}` not found in PROJECT_INDEX.md"))
 
     planning = planning_dir_for_slug(normalized)
