@@ -18,11 +18,5 @@
   "vars": {
     "ENVIRONMENT": "production",
     "ACCESS_ENFORCE": "true"
-  },
-  "routes": [
-    {
-      "pattern": "shipyard.shaneturon.ca",
-      "custom_domain": true
-    }
-  ]
+  }
 }
