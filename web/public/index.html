@@ -40,18 +40,41 @@
       <p class="text-slate-400 text-sm mb-4">Parse tree manifest → D1 · Deploy (provisioning) · Export Sugar Cube</p>
       <label class="block text-sm text-slate-400 mb-1">Project slug</label>
       <input id="orch-slug" value="SHIPYARD" class="rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 mb-4 font-mono" />
-      <label class="block text-sm text-slate-400 mb-1">Paste tree (one path per line)</label>
+      <label class="block text-sm text-slate-400 mb-1">Paste tree (one path per line) or upload manifest</label>
       <textarea id="tree-input" rows="6" placeholder="src/worker.ts&#10;src/orchestration.ts&#10;public/index.html"
         class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 font-mono text-sm mb-3"></textarea>
+      <input type="file" id="tree-file-input" accept=".txt,.md,.json" class="mb-3 text-sm text-slate-400" />
+      <label class="block text-sm text-slate-400 mb-1">Scaffold project name (for Deploy scaffold)</label>
+      <input id="scaffold-name" placeholder="My App" class="rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 mb-4 min-w-[240px]" />
       <div class="flex flex-wrap gap-2 mb-4">
         <button type="button" id="btn-parse-tree" class="rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-sm">Parse &amp; save to D1</button>
         <button type="button" id="btn-deploy" class="rounded-lg bg-amber-600 hover:bg-amber-500 px-4 py-2 text-sm">Deploy (queue)</button>
+        <button type="button" id="btn-deploy-scaffold" class="rounded-lg bg-orange-600 hover:bg-orange-500 px-4 py-2 text-sm">Deploy scaffold</button>
         <button type="button" id="btn-sugar" class="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-sm">Export Sugar Cube</button>
+      </div>
+      <div id="annotation-panel" class="hidden mb-4 rounded-lg border border-slate-700 bg-slate-800/80 p-4">
+        <p class="text-sm text-slate-400 mb-1">Annotate file</p>
+        <p id="ann-file-path" class="font-mono text-cyan-300 text-sm mb-3"></p>
+        <label class="block text-sm text-slate-400 mb-1">Action</label>
+        <select id="ann-action" class="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 mb-3 text-sm">
+          <option value="NOTE">NOTE</option>
+          <option value="REPLACE">REPLACE</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <label class="block text-sm text-slate-400 mb-1">Notes</label>
+        <textarea id="ann-notes" rows="3" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm mb-3"></textarea>
+        <label class="block text-sm text-slate-400 mb-1">Linked spec (optional)</label>
+        <input id="ann-linked-spec" placeholder="NOTEBOOKLM-ARCHITECTURE-SPECIFICATION.md#zone-1"
+          class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm mb-3" />
+        <div class="flex gap-2">
+          <button type="button" id="btn-save-annotation" class="rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-sm">Save annotation</button>
+          <button type="button" id="btn-close-annotation" class="rounded-lg bg-slate-700 hover:bg-slate-600 px-4 py-2 text-sm">Close</button>
+        </div>
       </div>
       <pre id="orch-result" class="text-xs text-slate-300 whitespace-pre-wrap max-h-64 overflow-auto"></pre>
       <p class="text-slate-500 text-xs mt-2">Orchestration API requires Cloudflare Access in browser. Deploy stream (SSE) after queue:</p>
       <pre id="deploy-stream" class="text-xs text-amber-200/80 whitespace-pre-wrap max-h-32 overflow-auto mt-1"></pre>
-      <ul id="tree-preview" class="mt-3 text-sm font-mono text-slate-400 space-y-1"></ul>
+      <div id="tree-preview" class="mt-3 text-sm font-mono text-slate-400"></div>
     </section>
 
     <section class="rounded-xl border border-slate-800 bg-slate-900/50 p-6">

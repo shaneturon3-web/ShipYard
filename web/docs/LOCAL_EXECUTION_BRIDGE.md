@@ -4,19 +4,61 @@ ShipYard Web Workers **do not** run Docker or shell commands. Deploy instruction
 
 ## Flow
 
-1. UI calls `POST /api/deploy/:slug` on `shipyard-web.*.workers.dev`.
-2. Worker inserts `deployment_events` row (`provisioning`).
+1. UI calls `POST /api/deploy/:slug` (or alias `POST /api/projects/:slug/deploy`) on `shipyard-web.*.workers.dev`.
+2. Worker inserts `deployment_events` row (`provisioning`) and sets `projects.status = provisioning`.
 3. Bridge agent (local) polls `GET /api/deploy/:slug/queue` **or** receives webhook on Tailscale hostname.
-4. Agent runs approved instruction schema (Docker compose path, env vars from D1 only).
-5. Agent `PATCH`es event status → `building` → `live` | `failed`.
+4. Agent runs approved instruction schema (see below). `shipyard refurbish` must pass first.
+5. Agent `PATCH`es event status → `building` → `live` | `failed`, which syncs `projects.status` to `active` or `failed`.
 
-## Bridge agent (stub)
+## Instruction schema (`instruction_json`)
 
-Place script at `~/ShipYard/bridge/shipyard-bridge-agent.sh` (future). Requirements:
+| Field | Required | Description |
+|-------|----------|-------------|
+| `action` | No | `scaffold` runs local project creation; omit for acknowledge-only |
+| `project_name` | When `action=scaffold` | Human name passed to `shipyard new` |
+| `target` | No | e.g. `local-optiplex` |
+| `transport` | No | e.g. `tailscale-bridge` |
+| `docker_compose` | No | Reserved; never auto-applied from edge |
+| `note` | No | Operator comment |
 
-- Tailscale IP or MagicDNS hostname in `~/.machine_env` as `EXECUTION_BRIDGE_URL`
+Example scaffold deploy from UI:
+
+```json
+{
+  "action": "scaffold",
+  "project_name": "My App",
+  "transport": "tailscale-bridge"
+}
+```
+
+Example default deploy (acknowledge-only):
+
+```json
+{
+  "target": "local-optiplex",
+  "transport": "tailscale-bridge",
+  "note": "Semantic router only — bridge agent executes"
+}
+```
+
+## Bridge agent
+
+Script: `~/ShipYard/bridge/shipyard-bridge-agent.sh`
+
+Requirements:
+
+- Tailscale IP or MagicDNS hostname in `~/.machine_env` as `EXECUTION_BRIDGE_URL` (optional metadata)
 - Shared secret `SHIPYARD_BRIDGE_SECRET` (Wrangler secret, not in repo)
 - Poll interval 30s or webhook listener on `:8788` (local only)
+- `shipyard` CLI on PATH, or `SHIPYARD_REPO` pointing at `~/ShipYard`
+
+Scaffold execution order:
+
+1. Poll queue for `provisioning` events
+2. `shipyard refurbish <SLUG>` — abort with `failed` if gaps
+3. Parse `instruction_json.action`
+4. If `scaffold`: `shipyard new "<project_name>"` (wraps `new_project_scaffold.py`)
+5. PATCH event with truncated stdout/stderr in `log_tail`
 
 ## Operator setup
 
@@ -24,7 +66,9 @@ Place script at `~/ShipYard/bridge/shipyard-bridge-agent.sh` (future). Requireme
 # On OptiPlex — example only
 export SHIPYARD_WEB_URL="https://shipyard-web.shaneturon3.workers.dev"
 export SHIPYARD_BRIDGE_SECRET="<from wrangler secret put>"
+export SHIPYARD_BRIDGE_SLUG="SHIPYARD"
 # tailscale status → note 100.x address
+SHIPYARD_BRIDGE_ONCE=1 ~/ShipYard/bridge/shipyard-bridge-agent.sh
 ```
 
 ## Safety
