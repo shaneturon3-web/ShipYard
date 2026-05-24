@@ -2,7 +2,7 @@
 # ShipYard local execution bridge — polls Worker deploy queue, runs refurbish gate, updates D1 via API.
 set -euo pipefail
 
-SHIPYARD_WEB_URL="${SHIPYARD_WEB_URL:-https://shipyard-web.shaneturon3.workers.dev}"
+SHIPYARD_WEB_URL="${SHIPYARD_WEB_URL:-https://shipyard.shaneturon.ca}"
 SHIPYARD_BRIDGE_SECRET="${SHIPYARD_BRIDGE_SECRET:-}"
 DEFAULT_SLUG="${SHIPYARD_BRIDGE_SLUG:-SHIPYARD}"
 POLL_INTERVAL="${SHIPYARD_BRIDGE_POLL_SEC:-30}"

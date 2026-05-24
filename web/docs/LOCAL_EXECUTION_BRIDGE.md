@@ -4,7 +4,7 @@ ShipYard Web Workers **do not** run Docker or shell commands. Deploy instruction
 
 ## Flow
 
-1. UI calls `POST /api/deploy/:slug` (or alias `POST /api/projects/:slug/deploy`) on `shipyard-web.*.workers.dev`.
+1. UI calls `POST /api/deploy/:slug` (or alias `POST /api/projects/:slug/deploy`) on `https://shipyard.shaneturon.ca`.
 2. Worker inserts `deployment_events` row (`provisioning`) and sets `projects.status = provisioning`.
 3. Bridge agent (local) polls `GET /api/deploy/:slug/queue` **or** receives webhook on Tailscale hostname.
 4. Agent runs approved instruction schema (see below). `shipyard refurbish` must pass first.
@@ -64,7 +64,7 @@ Scaffold execution order:
 
 ```bash
 # On OptiPlex — example only
-export SHIPYARD_WEB_URL="https://shipyard-web.shaneturon3.workers.dev"
+export SHIPYARD_WEB_URL="https://shipyard.shaneturon.ca"
 export SHIPYARD_BRIDGE_SECRET="<from wrangler secret put>"
 export SHIPYARD_BRIDGE_SLUG="SHIPYARD"
 # tailscale status → note 100.x address

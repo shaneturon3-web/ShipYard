@@ -6,7 +6,12 @@ from rich.console import Console
 from rich.table import Table
 
 from shipyard.paths import PROJECT_INDEX_DIR, SYNC_SCRIPT
-from shipyard.project_index import append_slug_to_index, parse_project_index, slug_in_index
+from shipyard.project_index import (
+    append_slug_to_index,
+    hidden_project_entries,
+    parse_project_index,
+    slug_in_index,
+)
 from shipyard.refurbish import scan_continuity
 from shipyard.register import register_all_projects, register_project_folder
 from shipyard.tools.new_project_scaffold import create
@@ -21,14 +26,28 @@ def _normalize_slug(slug: str) -> str:
 
 
 @app.command("list")
-def list_cmd():
+def list_cmd(
+    show_all: bool = typer.Option(
+        False,
+        "--all",
+        help="Include slugs listed in HIDDEN_SLUGS.md (marked hidden).",
+    ),
+):
     """Overview of all projects parsed from 06_PROJECT_INDEX"""
     if not PROJECT_INDEX_DIR.is_dir():
         console.print(f"[red]Project index not found at {PROJECT_INDEX_DIR}[/red]")
         raise typer.Exit(code=1)
 
     entries = parse_project_index()
-    table = Table(title="ShipYard Controlled Projects")
+    if show_all:
+        visible_slugs = {e.slug for e in entries}
+        entries = entries + [
+            e for e in hidden_project_entries() if e.slug not in visible_slugs
+        ]
+    table = Table(
+        title="ShipYard Controlled Projects"
+        + (" (including hidden)" if show_all else "")
+    )
     table.add_column("Slug", style="cyan")
     table.add_column("Project Name", style="magenta")
     table.add_column("Status", style="green")
@@ -39,7 +58,8 @@ def list_cmd():
         )
     else:
         for entry in entries:
-            table.add_row(entry.slug, entry.name, entry.status)
+            style = "dim" if entry.status == "hidden" else None
+            table.add_row(entry.slug, entry.name, entry.status, style=style)
 
     console.print(table)
 

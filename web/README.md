@@ -29,9 +29,9 @@ npm run dev         # http://localhost:8787
 
 | URL | Purpose |
 |-----|---------|
-| https://shipyard-web.shaneturon3.workers.dev/ | Dashboard |
-| https://shipyard-web.shaneturon3.workers.dev/api/projects | Project list (JSON) |
-| https://shipyard-web.shaneturon3.workers.dev/api/audit/SHIPYARD | Audit API (NotebookLM/tools) |
+| https://shipyard.shaneturon.ca/ | Dashboard |
+| https://shipyard.shaneturon.ca/api/projects | Project list (JSON) |
+| https://shipyard.shaneturon.ca/api/audit/SHIPYARD | Audit API (NotebookLM/tools) |
 
 D1 database: `shipyard-db` (`e71b0ca4-bdd9-4b9b-bade-1388d4bb825a`). R2 disabled until enabled on account.
 
