@@ -8,7 +8,10 @@ const PROTECTED_PREFIXES = [
 ];
 
 export function isProtectedOrchestrationPath(path: string): boolean {
-  return PROTECTED_PREFIXES.some((p) => path.startsWith(p));
+  if (PROTECTED_PREFIXES.some((p) => path.startsWith(p))) {
+    return true;
+  }
+  return /^\/api\/projects\/[A-Z0-9_]+\/deploy$/.test(path);
 }
 
 /**

@@ -14,7 +14,9 @@
     "db:migrate": "wrangler d1 execute shipyard-db --file=./schema/001_init.sql",
     "db:seed": "wrangler d1 execute shipyard-db --file=./scripts/seed-d1.sql",
     "db:orchestration:local": "wrangler d1 execute shipyard-db --local --file=./schema/002_orchestration.sql",
-    "db:orchestration:remote": "wrangler d1 execute shipyard-db --remote --file=./schema/002_orchestration.sql"
+    "db:orchestration:remote": "wrangler d1 execute shipyard-db --remote --file=./schema/002_orchestration.sql",
+    "db:annotations:local": "wrangler d1 execute shipyard-db --local --file=./schema/003_annotations.sql",
+    "db:annotations:remote": "wrangler d1 execute shipyard-db --remote --file=./schema/003_annotations.sql"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250525.0",
