@@ -3,7 +3,7 @@
 CONTROL TOWER orchestration CLI and Cloudflare Workers dashboard.
 
 - **CLI** (`shipyard/`): local project indexing, handoff scaffolding, sync validation
-- **Web** (`web/`): [ShipYard Web](https://shipyard-web.shaneturon3.workers.dev/) — D1-backed orchestration UI and semantic router API
+- **Web** (`web/`): [ShipYard Web](https://shipyard.shaneturon.ca/) — D1-backed orchestration UI and semantic router API
 
 ## Web (Workers + D1)
 
