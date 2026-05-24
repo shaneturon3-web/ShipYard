@@ -16,6 +16,86 @@ interface TreeNodeInput {
   metadata?: Record<string, unknown>;
 }
 
+export interface AnnotationInput {
+  file_path: string;
+  action?: string;
+  notes?: string;
+  linked_spec?: string;
+}
+
+async function setProjectStatus(db: D1Database, slug: string, status: string): Promise<void> {
+  const ts = nowIso();
+  await db
+    .prepare(`UPDATE projects SET status = ?, updated_at = ? WHERE slug = ?`)
+    .bind(status, ts, slug)
+    .run();
+}
+
+export function pathsToNestedTree(paths: string[]): Record<string, unknown> {
+  const root: Record<string, unknown> = {};
+  for (const raw of paths) {
+    const cleanPath = raw.trim().replace(/\\/g, "/");
+    if (!cleanPath) continue;
+    const segments = cleanPath.split("/").filter(Boolean);
+    let level = root;
+    segments.forEach((segment, index) => {
+      const isFile = index === segments.length - 1;
+      if (!level[segment]) {
+        level[segment] = isFile ? { type: "file" } : { type: "directory", children: {} };
+      }
+      const node = level[segment] as { type: string; children?: Record<string, unknown> };
+      if (!isFile && node.children) {
+        level = node.children;
+      }
+    });
+  }
+  return root;
+}
+
+export async function listAnnotations(db: D1Database, slug: string) {
+  const { results } = await db
+    .prepare(
+      `SELECT id, project_slug, file_path, action, notes, linked_spec, updated_at
+       FROM project_annotations WHERE project_slug = ? ORDER BY file_path`,
+    )
+    .bind(slug)
+    .all();
+  return results ?? [];
+}
+
+export async function saveAnnotations(
+  db: D1Database,
+  slug: string,
+  annotations: AnnotationInput[],
+): Promise<number> {
+  const ts = nowIso();
+  let count = 0;
+  for (const ann of annotations) {
+    if (!ann.file_path?.trim()) continue;
+    await db
+      .prepare(
+        `INSERT INTO project_annotations (project_slug, file_path, action, notes, linked_spec, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON CONFLICT(project_slug, file_path) DO UPDATE SET
+           action = excluded.action,
+           notes = excluded.notes,
+           linked_spec = excluded.linked_spec,
+           updated_at = excluded.updated_at`,
+      )
+      .bind(
+        slug,
+        ann.file_path.trim(),
+        ann.action ?? "NOTE",
+        ann.notes ?? null,
+        ann.linked_spec ?? null,
+        ts,
+      )
+      .run();
+    count += 1;
+  }
+  return count;
+}
+
 export async function saveTreeNodes(
   db: D1Database,
   slug: string,
@@ -81,6 +161,7 @@ export async function createDeployment(
     .bind(slug, JSON.stringify(instruction), "Awaiting local execution bridge", ts, ts)
     .run();
   const id = Number(result.meta.last_row_id ?? 0);
+  await setProjectStatus(db, slug, "provisioning");
   return {
     id,
     status: "provisioning",
@@ -108,7 +189,11 @@ export async function updateDeploymentEvent(
     )
     .bind(status, logTail ?? null, ts, eventId, slug)
     .run();
-  return (result.meta.changes ?? 0) > 0;
+  const changed = (result.meta.changes ?? 0) > 0;
+  if (changed && (status === "live" || status === "failed")) {
+    await setProjectStatus(db, slug, status === "live" ? "active" : "failed");
+  }
+  return changed;
 }
 
 export async function listDeployments(db: D1Database, slug: string) {
@@ -122,20 +207,77 @@ export async function listDeployments(db: D1Database, slug: string) {
   return results ?? [];
 }
 
-export async function exportSugarCube(db: D1Database, slug: string): Promise<Record<string, unknown>> {
+function annotationToMutation(row: {
+  file_path: string;
+  action: string;
+  notes: string | null;
+  linked_spec: string | null;
+}) {
+  return {
+    filePath: row.file_path,
+    action: row.action,
+    notes: row.notes ?? "",
+    linkedSpec: row.linked_spec ?? undefined,
+  };
+}
+
+export async function exportSugarCube(
+  db: D1Database,
+  slug: string,
+  clientAnnotations?: AnnotationInput[],
+): Promise<Record<string, unknown>> {
   const nodes = await listTreeNodes(db, slug);
   const deployments = await listDeployments(db, slug);
+  const annotations = await listAnnotations(db, slug);
   const workspace = await db
     .prepare(`SELECT * FROM project_workspaces WHERE project_slug = ?`)
     .bind(slug)
     .first();
 
+  const tagMutations = (nodes as { path: string; tag: string }[])
+    .filter((n) => n.tag && n.tag !== "unchanged")
+    .map((n) => ({
+      filePath: n.path,
+      action: n.tag.toUpperCase(),
+      notes: "",
+      linkedSpec: undefined,
+    }));
+
+  const dbMutations = (annotations as {
+    file_path: string;
+    action: string;
+    notes: string | null;
+    linked_spec: string | null;
+  }[]).map(annotationToMutation);
+
+  const clientMutations = (clientAnnotations ?? []).map((a) => ({
+    filePath: a.file_path,
+    action: a.action ?? "NOTE",
+    notes: a.notes ?? "",
+    linkedSpec: a.linked_spec,
+  }));
+
+  const byPath = new Map<string, ReturnType<typeof annotationToMutation>>();
+  for (const m of [...tagMutations, ...dbMutations, ...clientMutations]) {
+    byPath.set(m.filePath, m);
+  }
+  const mutations = [...byPath.values()];
+
+  const generatedAt = nowIso();
   const bundle = {
     slug,
-    generated_at: nowIso(),
+    generated_at: generatedAt,
     sugar_cube_version: "1.0",
+    package: "Sugar_Cube_Handoff_Bundle",
+    timestamp: generatedAt,
+    gravityScore: "high-density",
+    context: {
+      project: slug,
+      mutations,
+    },
     workspace,
     tree_nodes: nodes,
+    annotations,
     recent_deployments: deployments,
     handoff_path: `$HOME/CONTROL TOWER/05_HANDOFFS/projects/${slug}/`,
     control_tower_phase: "Architectural",
@@ -153,6 +295,16 @@ export async function exportSugarCube(db: D1Database, slug: string): Promise<Rec
     .run();
 
   return bundle;
+}
+
+async function handleDeployPost(
+  env: Env,
+  slug: string,
+  request: Request,
+): Promise<Response> {
+  const instruction = (await request.json()) as Record<string, unknown>;
+  const event = await createDeployment(env.DB, slug, instruction);
+  return Response.json({ slug, ...event }, { status: 201, headers: JSON_HEADERS });
 }
 
 export async function handleOrchestrationApi(
@@ -178,12 +330,43 @@ export async function handleOrchestrationApi(
     return Response.json({ slug, nodes }, { headers: JSON_HEADERS });
   }
 
+  const treeNested = path.match(/^\/api\/workspaces\/([A-Z0-9_]+)\/tree\/nested$/);
+  if (treeNested && request.method === "GET") {
+    const slug = treeNested[1];
+    const nodes = await listTreeNodes(env.DB, slug);
+    const paths = (nodes as { path: string }[]).map((n) => n.path);
+    return Response.json(
+      { slug, tree: pathsToNestedTree(paths), paths },
+      { headers: JSON_HEADERS },
+    );
+  }
+
+  const annGet = path.match(/^\/api\/workspaces\/([A-Z0-9_]+)\/annotations$/);
+  if (annGet && request.method === "GET") {
+    const slug = annGet[1];
+    const annotations = await listAnnotations(env.DB, slug);
+    return Response.json({ slug, annotations }, { headers: JSON_HEADERS });
+  }
+
+  const annPost = path.match(/^\/api\/workspaces\/([A-Z0-9_]+)\/annotations$/);
+  if (annPost && request.method === "POST") {
+    const slug = annPost[1];
+    const body = (await request.json()) as { annotations?: AnnotationInput[] };
+    if (!body.annotations?.length) {
+      return Response.json({ error: "annotations array required" }, { status: 400, headers: JSON_HEADERS });
+    }
+    const saved = await saveAnnotations(env.DB, slug, body.annotations);
+    return Response.json({ slug, saved }, { headers: JSON_HEADERS });
+  }
+
   const deployPost = path.match(/^\/api\/deploy\/([A-Z0-9_]+)$/);
   if (deployPost && request.method === "POST") {
-    const slug = deployPost[1];
-    const instruction = (await request.json()) as Record<string, unknown>;
-    const event = await createDeployment(env.DB, slug, instruction);
-    return Response.json({ slug, ...event }, { status: 201, headers: JSON_HEADERS });
+    return handleDeployPost(env, deployPost[1], request);
+  }
+
+  const deployAlias = path.match(/^\/api\/projects\/([A-Z0-9_]+)\/deploy$/);
+  if (deployAlias && request.method === "POST") {
+    return handleDeployPost(env, deployAlias[1], request);
   }
 
   const deployQueue = path.match(/^\/api\/deploy\/([A-Z0-9_]+)\/queue$/);
@@ -207,9 +390,14 @@ export async function handleOrchestrationApi(
   }
 
   const sugar = path.match(/^\/api\/sugar-cube\/([A-Z0-9_]+)\/export$/);
-  if (sugar && request.method === "GET") {
+  if (sugar && (request.method === "GET" || request.method === "POST")) {
     const slug = sugar[1];
-    const bundle = await exportSugarCube(env.DB, slug);
+    let clientAnnotations: AnnotationInput[] | undefined;
+    if (request.method === "POST") {
+      const body = (await request.json()) as { annotations?: AnnotationInput[] };
+      clientAnnotations = body.annotations;
+    }
+    const bundle = await exportSugarCube(env.DB, slug, clientAnnotations);
     return Response.json(bundle, { headers: JSON_HEADERS });
   }
 
