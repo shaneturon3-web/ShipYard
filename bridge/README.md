@@ -5,7 +5,7 @@ Polls **ShipYard Web** for `provisioning` deployments and updates D1 status via 
 ## Setup (OptiPlex)
 
 ```bash
-export SHIPYARD_WEB_URL="https://shipyard-web.shaneturon3.workers.dev"
+export SHIPYARD_WEB_URL="https://shipyard.shaneturon.ca"
 export SHIPYARD_BRIDGE_SECRET="<from: cd ~/ShipYard/web && wrangler secret put SHIPYARD_BRIDGE_SECRET>"
 export SHIPYARD_BRIDGE_SLUG="SHIPYARD"
 chmod +x ~/ShipYard/bridge/shipyard-bridge-agent.sh
