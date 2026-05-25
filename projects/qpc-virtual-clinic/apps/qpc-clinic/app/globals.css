@@ -1,0 +1,193 @@
+:root {
+  --qpc-bg: #f7f9fc;
+  --qpc-surface: #ffffff;
+  --qpc-blue: #4a7c9b;
+  --qpc-blue-deep: #2f5f7a;
+  --qpc-text: #1f2933;
+  --qpc-muted: #5c6b7a;
+  --qpc-border: #d8e2ec;
+  --qpc-radius: 12px;
+  --qpc-font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--qpc-font);
+  background: var(--qpc-bg);
+  color: var(--qpc-text);
+  line-height: 1.55;
+}
+
+a {
+  color: var(--qpc-blue-deep);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--qpc-surface);
+  border-bottom: 1px solid var(--qpc-border);
+}
+
+.site-header nav {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.lang-switch {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.lang-switch a[aria-current="true"] {
+  font-weight: 700;
+  color: var(--qpc-blue-deep);
+}
+
+main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.hero {
+  background: var(--qpc-surface);
+  border: 1px solid var(--qpc-border);
+  border-radius: var(--qpc-radius);
+  padding: 2.5rem 2rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: var(--qpc-blue-deep);
+}
+
+.hero p {
+  margin: 0 0 1.5rem;
+  color: var(--qpc-muted);
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--qpc-blue);
+  color: #fff;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--qpc-blue-deep);
+  text-decoration: none;
+}
+
+.book-form {
+  display: grid;
+  gap: 1rem;
+  background: var(--qpc-surface);
+  border: 1px solid var(--qpc-border);
+  border-radius: var(--qpc-radius);
+  padding: 1.5rem;
+}
+
+.book-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.book-form input,
+.book-form select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--qpc-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+  color: var(--qpc-muted);
+}
+
+/* Phase 04 — Virtuelle premium shell */
+.qpc-virtuelle-shell {
+  background-color: #faf9f6;
+  color: #1a2e40;
+  min-height: calc(100vh - 8rem);
+  padding: 4rem 2rem;
+}
+
+.qpc-virtuelle-header {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.qpc-virtuelle-header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #0f2c59;
+  margin: 0;
+}
+
+.qpc-virtuelle-subtitle {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.qpc-virtuelle-cta {
+  margin-top: 3rem;
+}
+
+.qpc-virtuelle-btn {
+  display: inline-block;
+  background-color: #0f2c59;
+  color: #ffffff;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.qpc-virtuelle-btn:hover {
+  background-color: #1a2e40;
+  text-decoration: none;
+}
+
+.qpc-virtuelle-footer {
+  margin-top: 8rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 2rem;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.qpc-virtuelle-footer blockquote {
+  font-style: italic;
+  margin: 0;
+}

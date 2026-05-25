@@ -1,0 +1,14 @@
+{
+  "name": "qpc-virtual-clinic",
+  "private": true,
+  "version": "0.1.0",
+  "description": "QPC clinical wrapper — unified interface isolation (WO-QPC-001 / QPC-20260525-01)",
+  "workspaces": [
+    "apps/qpc-clinic"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w qpc-clinic",
+    "build": "npm run build -w qpc-clinic",
+    "typecheck": "npm run typecheck -w qpc-clinic"
+  }
+}

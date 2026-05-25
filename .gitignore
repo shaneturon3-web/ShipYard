@@ -10,6 +10,9 @@ allamakey.txt
 web/node_modules/
 web/.wrangler/
 web/dist/
+projects/**/node_modules/
+projects/**/.next/
+projects/**/out/
 content.jpeg
 ~/
 gemini-code-1779118273641.md

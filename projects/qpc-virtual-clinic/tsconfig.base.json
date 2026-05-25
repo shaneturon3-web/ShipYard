@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@core/capabilities": ["./core/capabilities/index.ts"],
+      "@core/capabilities/*": ["./core/capabilities/*"],
+      "@adapters": ["./adapters/index.ts"],
+      "@adapters/*": ["./adapters/*"],
+      "@shared/i18n": ["./shared/i18n/index.ts"],
+      "@shared/i18n/*": ["./shared/i18n/*"]
+    }
+  },
+  "exclude": ["node_modules", "apps/qpc-clinic/.next"]
+}

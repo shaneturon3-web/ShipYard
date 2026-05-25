@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "siteName": "Clinique de psychologie du Québec",
+    "tagline": "Soins psychologiques centrés sur l'humain à Montréal"
+  },
+  "nav": {
+    "home": "Accueil",
+    "services": "Services",
+    "book": "Prendre rendez-vous",
+    "contact": "Contact",
+    "languages": "Langues"
+  },
+  "home": {
+    "heroTitle": "Des soins présents, organisés et profondément humains",
+    "heroSubtitle": "Cliniciens trilingues : anxiété, traumatisme, TDAH, épuisement et transitions de vie.",
+    "ctaBook": "Demander un rendez-vous"
+  },
+  "book": {
+    "title": "Demander un rendez-vous",
+    "subtitle": "Indiquez votre langue et vos disponibilités—nous vous jumelerons avec un clinicien.",
+    "submit": "Continuer",
+    "success": "Votre demande a été reçue. Notre équipe confirmera sous peu."
+  },
+  "footer": {
+    "rights": "Clinique de psychologie du Québec. Tous droits réservés."
+  }
+}

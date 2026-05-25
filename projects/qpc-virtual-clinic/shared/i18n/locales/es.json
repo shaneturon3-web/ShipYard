@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "siteName": "Clínica de Psicología de Quebec",
+    "tagline": "Atención psicológica centrada en la persona en Montreal"
+  },
+  "nav": {
+    "home": "Inicio",
+    "services": "Servicios",
+    "book": "Reservar cita",
+    "contact": "Contacto",
+    "languages": "Idiomas"
+  },
+  "home": {
+    "heroTitle": "Atención presente, organizada y profundamente humana",
+    "heroSubtitle": "Clínicos trilingües: ansiedad, trauma, TDAH, agotamiento y transiciones de vida.",
+    "ctaBook": "Solicitar una cita"
+  },
+  "book": {
+    "title": "Solicitar una cita",
+    "subtitle": "Indique su idioma y disponibilidad—le asignaremos un clínico.",
+    "submit": "Continuar",
+    "success": "Hemos recibido su solicitud. Nuestro equipo confirmará pronto."
+  },
+  "footer": {
+    "rights": "Clínica de Psicología de Quebec. Todos los derechos reservados."
+  }
+}

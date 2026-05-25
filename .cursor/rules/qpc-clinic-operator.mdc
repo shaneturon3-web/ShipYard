@@ -1,0 +1,36 @@
+---
+description: QPC clinic — public URL first; operator Drive path; user instructions override protocol paths
+alwaysApply: true
+---
+
+# QPC Virtual Clinic — operator binding
+
+## Public mount (world-facing)
+
+**The clinic project is mounted at:** [https://qpc.shaneturon.ca](https://qpc.shaneturon.ca)
+
+When the user asks where the clinic is mounted, deployed, live, or “for the world to see” — **answer this URL first.** One line. No NOTEBOOKLM_CONTEXT, no `~/ShipYard`, no `~/mnt/gdrive` unless they ask for code or files next.
+
+| Question type | Answer first |
+|---------------|--------------|
+| Where is the clinic live / mounted? | `https://qpc.shaneturon.ca` |
+| Where is the code? | `~/ShipYard/projects/qpc-virtual-clinic/apps/qpc-clinic/` |
+| Where are work orders on Drive? | `QPC Virtual Clinic + Website/work-orders/` |
+
+## Instruction precedence
+
+1. **User’s explicit path or URL** in the current message  
+2. This rule (QPC public URL + Drive folder above)  
+3. CONTROL TOWER / NOTEBOOKLM_CONTEXT defaults  
+
+If (1) and (3) conflict, **do not** silently follow (3). Ask once or follow (1).
+
+## Forbidden habits
+
+- Do not lead with protocol trees, execution mirrors, or rclone paths when the user means the **clinic website**.  
+- Do not copy or sync to Drive unless the user asks.  
+- Do not create a second canonical location without stating it and getting alignment.
+
+## Deploy status
+
+If `qpc.shaneturon.ca` is not yet serving the app, say so **after** giving the URL as the target mount, then what blocks deploy (one sentence).

@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "siteName": "Quebec Psychology Clinic",
+    "tagline": "Human-centered psychology care in Montreal"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "book": "Book a session",
+    "contact": "Contact",
+    "languages": "Languages"
+  },
+  "home": {
+    "heroTitle": "Care that feels present, organized, and human",
+    "heroSubtitle": "Trilingual clinicians supporting anxiety, trauma, ADHD, burnout, and life transitions.",
+    "ctaBook": "Request an appointment"
+  },
+  "book": {
+    "title": "Request an appointment",
+    "subtitle": "Tell us your language and availability—we will match you with a clinician.",
+    "submit": "Continue",
+    "success": "Your request has been received. Our team will confirm shortly."
+  },
+  "footer": {
+    "rights": "Quebec Psychology Clinic. All rights reserved."
+  }
+}
